@@ -3,6 +3,10 @@ import 'package:go_router/go_router.dart';
 
 import '../widgets/scaffold_with_navbar.dart';
 import '../../features/home/screens/home_screen.dart';
+import '../../features/events/screens/events_screen.dart';
+import '../../features/announcements/screens/announcements_screen.dart';
+import '../../features/menu/screens/menu_screen.dart';
+import '../../features/events/screens/event_details_screen.dart';
 
 // Navigator Keys for maintaining state across tabs
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -40,8 +44,7 @@ final appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/events',
-              // Placeholder: Will be replaced by EventsScreen() soon
-              builder: (context, state) => const Scaffold(body: Center(child: Text('Event List Screen'))),
+              builder: (context, state) => const EventsScreen(), // <--- Update this line
             ),
           ],
         ),
@@ -52,7 +55,7 @@ final appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/announcements',
-              builder: (context, state) => const Scaffold(body: Center(child: Text('Announcements Feed'))),
+                builder: (context, state) => const AnnouncementsScreen(),
             ),
           ],
         ),
@@ -63,7 +66,7 @@ final appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/menu',
-              builder: (context, state) => const Scaffold(body: Center(child: Text('Menu & Points Screen'))),
+              builder: (context, state) => const MenuScreen(), // Updated!
             ),
           ],
         ),
@@ -75,6 +78,32 @@ final appRouter = GoRouter(
       path: '/login',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const Scaffold(body: Center(child: Text('Login Screen'))),
+    ),
+
+    // NEW DETAILS ROUTE (WITH SLIDE-UP ANIMATION)
+    GoRoute(
+      path: '/event-details',
+      parentNavigatorKey: _rootNavigatorKey,
+      pageBuilder: (context, state) {
+        return CustomTransitionPage(
+          key: state.pageKey,
+          child: const EventDetailsScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            // Start from the bottom (Offset Y: 1.0) and slide to the center (Offset Y: 0.0)
+            const begin = Offset(0.0, 1.0);
+            const end = Offset.zero;
+            // A smooth curve makes it feel natural, not robotic
+            const curve = Curves.easeOutCubic;
+
+            var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+            return SlideTransition(
+              position: animation.drive(tween),
+              child: child,
+            );
+          },
+        );
+      },
     ),
 
     // The QR Scanner will go here later with parentNavigatorKey: _rootNavigatorKey

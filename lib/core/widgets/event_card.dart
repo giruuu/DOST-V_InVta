@@ -8,11 +8,9 @@ class EventCard extends StatelessWidget {
   final String description;
   final String date;
   final String time;
-  final String imageUrl;
+  final String? imageUrl;
   final String statusText;
-  final VoidCallback onSeeMore;
-  final VoidCallback? onAction;
-  final String? actionButtonText;
+  final VoidCallback? onSeeMore;
 
   const EventCard({
     super.key,
@@ -20,117 +18,112 @@ class EventCard extends StatelessWidget {
     required this.description,
     required this.date,
     required this.time,
-    required this.imageUrl,
-    required this.statusText,
-    required this.onSeeMore,
-    this.onAction,
-    this.actionButtonText,
+    this.imageUrl, // Nullable
+    this.statusText = "MAIN EVENT", // Default value
+    this.onSeeMore, // Optional callback
   });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Container(
       margin: EdgeInsets.only(bottom: 16.h),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 1. Responsive Image
-          ClipRRect(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
-            child: CachedNetworkImage(
-              imageUrl: imageUrl,
-              height: 160.h, // Scaled height
-              width: double.infinity,
-              fit: BoxFit.cover,
-              placeholder: (context, url) => Container(color: Colors.grey[200]),
-              errorWidget: (context, url, error) => const Icon(Icons.broken_image),
-            ),
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
-
-          Padding(
-            padding: EdgeInsets.all(12.w), // Scaled padding
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 2. Title with .sp
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontSize: 18.sp,
-                  ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 1. Image Section (Asset fallback if imageUrl is null)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8.r),
+                child: SizedBox(
+                  width: 85.w,
+                  height: 85.w,
+                  child: imageUrl != null
+                      ? CachedNetworkImage(
+                    imageUrl: imageUrl!,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(color: Colors.grey[100]),
+                    errorWidget: (context, url, error) => Image.asset('assets/images/DOST_Logo.png'),
+                  )
+                      : Image.asset('assets/images/DOST_Logo.png', fit: BoxFit.contain),
                 ),
-                SizedBox(height: 4.h),
+              ),
+              SizedBox(width: 12.w),
 
-                // 3. Description
-                Text(
-                  description,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontSize: 13.sp,
-                  ),
-                ),
-                SizedBox(height: 12.h),
-
-                // 4. Icons & Text Row
-                Row(
-                  children: [
-                    Icon(Icons.calendar_today, size: 14.w, color: AppTheme.textLightGray),
-                    SizedBox(width: 4.w),
-                    Text(date, style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600)),
-                    SizedBox(width: 16.w),
-                    Icon(Icons.access_time, size: 14.w, color: AppTheme.textLightGray),
-                    SizedBox(width: 4.w),
-                    Text(time, style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600)),
-                  ],
-                ),
-                SizedBox(height: 16.h),
-
-                // 5. Status & Actions
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              // 2. Content Section
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      statusText.toUpperCase(),
+                      title.toUpperCase(),
                       style: TextStyle(
-                        color: AppTheme.alertRed,
+                        fontSize: 14.sp,
                         fontWeight: FontWeight.bold,
-                        fontSize: 12.sp,
+                        color: AppTheme.primaryBlue,
                       ),
                     ),
-                    Row(
-                      children: [
-                        if (onAction != null)
-                          SizedBox(
-                            height: 36.h,
-                            child: ElevatedButton(
-                              onPressed: onAction,
-                              style: ElevatedButton.styleFrom(
-                                padding: EdgeInsets.symmetric(horizontal: 12.w),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
-                              ),
-                              child: Text(actionButtonText ?? 'Action', style: TextStyle(fontSize: 12.sp)),
-                            ),
-                          ),
-                        SizedBox(width: 8.w),
-                        SizedBox(
-                          height: 36.h,
-                          child: OutlinedButton(
-                            onPressed: onSeeMore,
-                            style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: AppTheme.primaryBlue),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
-                              padding: EdgeInsets.symmetric(horizontal: 12.w),
-                            ),
-                            child: Text('SEE MORE', style: TextStyle(color: AppTheme.primaryBlue, fontSize: 12.sp)),
-                          ),
-                        ),
-                      ],
+                    SizedBox(height: 4.h),
+                    Text(
+                      description,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 11.sp, color: Colors.grey[600], height: 1.3),
+                    ),
+                    SizedBox(height: 8.h),
+                    Text(
+                      "$date   $time",
+                      style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.bold, color: Colors.black87),
+                    ),
+                    SizedBox(height: 8.h),
+
+                    // Status Badge
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryBlue,
+                        borderRadius: BorderRadius.circular(4.r),
+                      ),
+                      child: Text(
+                        statusText.toUpperCase(),
+                        style: TextStyle(color: Colors.white, fontSize: 9.sp, fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ],
                 ),
-              ],
+              ),
+            ],
+          ),
+
+          // 3. Action Button
+          // 3. Action Button
+          Align(
+            alignment: Alignment.centerRight,
+            child: OutlinedButton(
+              // FIX: Just pass the 'onSeeMore' variable here!
+              onPressed: onSeeMore,
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: AppTheme.primaryBlue),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+                minimumSize: Size(100.w, 32.h),
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+              ),
+              child: Text(
+                "SEE MORE",
+                style: TextStyle(fontSize: 11.sp, color: AppTheme.primaryBlue, fontWeight: FontWeight.bold),
+              ),
             ),
           ),
         ],

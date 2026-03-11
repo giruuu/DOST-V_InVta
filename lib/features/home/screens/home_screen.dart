@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart'; // 1. Added GoRouter import!
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/event_card.dart';
 
@@ -9,107 +10,160 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 20.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        title: Image.asset(
+          'assets/images/InVta_Logo.png',
+          height: 35.h,
+          fit: BoxFit.contain,
+        ),
+        centerTitle: false,
+        actions: [
+          Stack(
+            alignment: Alignment.center,
             children: [
-              SizedBox(height: 20.h),
-
-              // 1. Welcome Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Welcome back,",
-                        style: TextStyle(fontSize: 14.sp, color: AppTheme.textLightGray),
-                      ),
-                      Text(
-                        "Gian Villegas", // This will eventually come from Laravel
-                        style: TextStyle(
-                            fontSize: 22.sp,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.primaryBlue
-                        ),
-                      ),
-                    ],
-                  ),
-                  CircleAvatar(
-                    radius: 24.r,
-                    backgroundColor: AppTheme.primaryBlue.withOpacity(0.1),
-                    child: Icon(Icons.person, color: AppTheme.primaryBlue, size: 28.w),
-                  ),
-                ],
+              IconButton(
+                icon: Icon(Icons.notifications_none, color: AppTheme.primaryBlue, size: 28.w),
+                onPressed: () => print("Notifications Tapped"),
               ),
-
-              SizedBox(height: 20.h),
-
-              // 2. Search Bar
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12.r),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: "Search events...",
-                    hintStyle: TextStyle(fontSize: 14.sp, color: AppTheme.textLightGray),
-                    border: InputBorder.none,
-                    icon: Icon(Icons.search, color: AppTheme.primaryBlue, size: 20.w),
+              Positioned(
+                top: 10.h,
+                right: 10.w,
+                child: Container(
+                  padding: EdgeInsets.all(4.w),
+                  decoration: const BoxDecoration(
+                    color: AppTheme.alertRed,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    '3',
+                    style: TextStyle(color: Colors.white, fontSize: 8.sp, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
-
-              SizedBox(height: 25.h),
-
-              // 3. Section Title: Ongoing Events
-              Text(
-                "Ongoing Events",
-                style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 12.h),
-
-              // 4. Dummy Event Cards (To test the UI)
-              EventCard(
-                title: "InVta Tech Summit 2026",
-                description: "Join us for the biggest tech gathering in Bicol University. Explore new trends in AI and Cloud.",
-                date: "March 15, 2026",
-                time: "08:00 AM",
-                imageUrl: "https://picsum.photos/800/400", // Temporary dummy image
-                statusText: "Ongoing",
-                actionButtonText: "REGISTER",
-                onAction: () => print("Register Tapped"),
-                onSeeMore: () => print("See More Tapped"),
-              ),
-
-              EventCard(
-                title: "Artistry Exhibit: Albay",
-                description: "A showcase of local artists from Tabaco City and Legazpi. Support our local creators!",
-                date: "March 18, 2026",
-                time: "01:00 PM",
-                imageUrl: "https://picsum.photos/801/400",
-                statusText: "Upcoming",
-                actionButtonText: "REGISTER",
-                onAction: () => print("Register Tapped"),
-                onSeeMore: () => print("See More Tapped"),
-              ),
-
-              SizedBox(height: 20.h), // Bottom padding for scrolling
             ],
           ),
+          SizedBox(width: 12.w),
+        ],
+      ),
+
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(20.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSectionTitle("Announcements"),
+            SizedBox(
+              height: 110.h,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  _buildAnnouncementCard(),
+                  _buildAnnouncementCard(),
+                ],
+              ),
+            ),
+
+            SizedBox(height: 20.h),
+
+            _buildSectionTitle("Ongoing Events"),
+            // 2. Removed 'const' here and added the onSeeMore routing logic
+            EventCard(
+              title: "Event Name",
+              description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna.",
+              date: "Wed, Jan 21 2025",
+              time: "10:00 PM",
+              onSeeMore: () => context.push('/event-details'),
+            ),
+
+            _buildSectionTitle("Upcoming Events"),
+            // 3. Removed 'const' here and added the onSeeMore routing logic
+            EventCard(
+              title: "Event Name",
+              description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna.",
+              date: "Wed, Jan 21 2025",
+              time: "10:00 PM",
+              onSeeMore: () => context.push('/event-details'),
+            ),
+
+            _buildSectionTitle("Surveys"),
+            _buildSurveyItem(),
+            _buildSurveyItem(),
+            _buildSurveyItem(),
+
+            SizedBox(height: 20.h),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 12.h),
+      child: Text(
+        title,
+        style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Colors.black87),
+      ),
+    );
+  }
+
+  Widget _buildAnnouncementCard() {
+    return Container(
+      width: 250.w,
+      margin: EdgeInsets.only(right: 12.w),
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 5)],
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.campaign, color: AppTheme.primaryBlue, size: 40.w),
+          SizedBox(width: 8.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("ANNOUNCEMENT", style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue)),
+                Text("This event has been cancelled", style: TextStyle(fontSize: 10.sp, color: Colors.grey)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSurveyItem() {
+    return Container(
+      margin: EdgeInsets.only(bottom: 8.h),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.assignment, color: AppTheme.primaryBlue, size: 24.w),
+          SizedBox(width: 12.w),
+          Expanded(child: Text("Survey Available for this Event", style: TextStyle(fontSize: 10.sp))),
+          ElevatedButton(
+            onPressed: () {},
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primaryBlue,
+              minimumSize: Size(80.w, 25.h),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.r)),
+            ),
+            child: Text("Go to Survey", style: TextStyle(fontSize: 9.sp)),
+          )
+        ],
       ),
     );
   }
