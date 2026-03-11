@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -125,7 +126,11 @@ class LoginPage extends StatelessWidget {
                   width: double.infinity,
                   height: 55.h,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      // Use context.push to go to the signup page
+                      // This allows the user to press 'back' to return to login
+                      context.push('/signup');
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFE1F5FE),
                       shape: RoundedRectangleBorder(
