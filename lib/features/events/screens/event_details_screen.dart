@@ -4,8 +4,27 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_theme.dart';
 
-class EventDetailsScreen extends StatelessWidget {
+// Import your new separate files!
+import '../widgets/main_event_tab.dart';
+import '../widgets/other_events_tab.dart';
+import '../widgets/rewards_tab.dart';
+
+class EventDetailsScreen extends StatefulWidget {
   const EventDetailsScreen({super.key});
+
+  @override
+  State<EventDetailsScreen> createState() => _EventDetailsScreenState();
+}
+
+class _EventDetailsScreenState extends State<EventDetailsScreen> {
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,26 +32,26 @@ class EventDetailsScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // 1. BACKGROUND BANNER IMAGE
+          // BACKGROUND BANNER IMAGE
           Positioned(
             top: 0,
             left: 0,
             right: 0,
-            height: 320.h, // Height of the image
+            height: 320.h,
             child: CachedNetworkImage(
-              imageUrl: 'https://picsum.photos/800/600', // Placeholder
+              imageUrl: 'https://picsum.photos/800/600',
               fit: BoxFit.cover,
               placeholder: (context, url) => Container(color: Colors.grey[200]),
               errorWidget: (context, url, error) => Container(color: Colors.grey[300]),
             ),
           ),
 
-          // 2. BACK BUTTON (Overlapping the image)
+          // BACK BUTTON
           Positioned(
             top: 50.h,
             left: 20.w,
             child: InkWell(
-              onTap: () => context.pop(), // Goes back to the previous screen
+              onTap: () => context.pop(),
               child: CircleAvatar(
                 backgroundColor: Colors.white,
                 radius: 16.r,
@@ -41,9 +60,9 @@ class EventDetailsScreen extends StatelessWidget {
             ),
           ),
 
-          // 3. OVERLAPPING WHITE SHEET
+          // OVERLAPPING WHITE SHEET
           Positioned(
-            top: 280.h, // Starts slightly above the bottom of the image
+            top: 280.h,
             left: 0,
             right: 0,
             bottom: 0,
@@ -57,112 +76,53 @@ class EventDetailsScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  // Scrollable Content Area
+                  // PAGEVIEW (Using the new external widgets!)
                   Expanded(
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.all(24.w),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Title
-                          Text(
-                            "EVENT NAME",
-                            style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
-                          ),
-                          SizedBox(height: 16.h),
-
-                          // Location
-                          Row(
-                            children: [
-                              Icon(Icons.location_on_outlined, size: 18.w, color: Colors.grey[700]),
-                              SizedBox(width: 8.w),
-                              Text("DOST REGION V OFFICE", style: TextStyle(fontSize: 11.sp, color: Colors.grey[700])),
-                            ],
-                          ),
-                          SizedBox(height: 8.h),
-
-                          // Date and Time
-                          Row(
-                            children: [
-                              Icon(Icons.calendar_today_outlined, size: 16.w, color: Colors.grey[700]),
-                              SizedBox(width: 8.w),
-                              Text("Wed, Jan 21 2025", style: TextStyle(fontSize: 11.sp, color: Colors.grey[700])),
-                              SizedBox(width: 24.w),
-                              Text("06:16 PM", style: TextStyle(fontSize: 11.sp, color: Colors.grey[700], fontWeight: FontWeight.bold)),
-                            ],
-                          ),
-                          SizedBox(height: 16.h),
-
-                          // Badge
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
-                            decoration: BoxDecoration(
-                              color: AppTheme.primaryBlue,
-                              borderRadius: BorderRadius.circular(6.r),
-                            ),
-                            child: Text("Main Event", style: TextStyle(color: Colors.white, fontSize: 11.sp, fontWeight: FontWeight.bold)),
-                          ),
-                          SizedBox(height: 24.h),
-
-                          // About Section
-                          Text("About this Event", style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue)),
-                          SizedBox(height: 8.h),
-                          Text(
-                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullam.",
-                            style: TextStyle(fontSize: 11.sp, color: Colors.grey[600], height: 1.5),
-                          ),
-                          SizedBox(height: 24.h),
-
-                          // Organizers Section
-                          Text("Organizers", style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue)),
-                          SizedBox(height: 12.h),
-                          Row(
-                            children: [
-                              Image.asset('assets/images/DOST_Logo.png', width: 40.w, height: 40.w),
-                              SizedBox(width: 12.w),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text("DOST", style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold)),
-                                  Text("DOST REGION V OFFICE", style: TextStyle(fontSize: 10.sp, color: Colors.grey[700])),
-                                ],
-                              )
-                            ],
-                          ),
-                        ],
-                      ),
+                    child: PageView(
+                      controller: _pageController,
+                      onPageChanged: (index) {
+                        setState(() {
+                          _currentPage = index;
+                        });
+                      },
+                      children: const [
+                        MainEventTab(),
+                        OtherEventsTab(),
+                        RewardsTab(),
+                      ],
                     ),
                   ),
 
-                  // 4. FIXED BOTTOM BUTTON & INDICATOR
+                  // DYNAMIC BOTTOM BAR
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-                    decoration: BoxDecoration(color: Colors.white),
+                    decoration: const BoxDecoration(color: Colors.white),
                     child: Column(
                       children: [
-                        SizedBox(
-                          width: double.infinity,
-                          height: 45.h,
-                          child: ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.primaryBlue,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+                        if (_currentPage == 0) ...[
+                          SizedBox(
+                            width: double.infinity,
+                            height: 45.h,
+                            child: ElevatedButton(
+                              onPressed: () {},
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.primaryBlue,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+                              ),
+                              child: Text("ANSWER SURVEY", style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: Colors.white)),
                             ),
-                            child: Text("ANSWER SURVEY", style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: Colors.white)),
                           ),
-                        ),
-                        SizedBox(height: 16.h),
+                          SizedBox(height: 16.h),
+                        ],
 
-                        // Page Indicator (Active, Inactive, Inactive)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Container(width: 24.w, height: 4.h, decoration: BoxDecoration(color: AppTheme.primaryBlue, borderRadius: BorderRadius.circular(2.r))),
+                            _buildDot(0),
                             SizedBox(width: 6.w),
-                            Container(width: 8.w, height: 4.h, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2.r))),
+                            _buildDot(1),
                             SizedBox(width: 6.w),
-                            Container(width: 8.w, height: 4.h, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2.r))),
+                            _buildDot(2),
                           ],
                         ),
                       ],
@@ -173,6 +133,19 @@ class EventDetailsScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDot(int index) {
+    bool isActive = _currentPage == index;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      width: isActive ? 24.w : 8.w,
+      height: 4.h,
+      decoration: BoxDecoration(
+        color: isActive ? AppTheme.primaryBlue : Colors.grey[300],
+        borderRadius: BorderRadius.circular(2.r),
       ),
     );
   }
