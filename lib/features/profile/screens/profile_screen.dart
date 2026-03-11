@@ -1,168 +1,138 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:qr_flutter/qr_flutter.dart'; // Import the new package
 import '../../../core/theme/app_theme.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
-
-class _ProfileScreenState extends State<ProfileScreen> {
-  // 1. Track the selected avatar (Default to the first one: index 0)
-  int _selectedAvatarIndex = 0;
-
-  // 2. A list of preselected avatar images (Using Pravatar for random faces)
-  final List<String> _avatarOptions = [
-    'https://i.pravatar.cc/150?img=11',
-    'https://i.pravatar.cc/150?img=12',
-    'https://i.pravatar.cc/150?img=33',
-    'https://i.pravatar.cc/150?img=14',
-    'https://i.pravatar.cc/150?img=15',
-    'https://i.pravatar.cc/150?img=68',
-  ];
-
-  @override
   Widget build(BuildContext context) {
+    // Dummy user data for the ID badge
+    final String userName = "Gian Russell Villegas";
+    final String userStatus = "REGISTERED";
+    final String userIdString = "INVTA-USER-89234"; // This is what the QR code will store!
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF5F5F5), // Light grey background to make the card pop
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new, color: AppTheme.primaryBlue, size: 20.w),
-          onTap: () => context.pop(),
+          onPressed: () => context.pop(),
         ),
         title: Text(
-          "My Profile",
+          "My Digital ID",
           style: TextStyle(color: AppTheme.primaryBlue, fontSize: 18.sp, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(24.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // --- AVATAR SELECTION SECTION ---
-            Center(
-              child: Text(
-                "Choose your Avatar",
-                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Colors.black87),
-              ),
-            ),
-            SizedBox(height: 16.h),
-
-            // Horizontal list of avatars
-            SizedBox(
-              height: 90.h,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: _avatarOptions.length,
-                itemBuilder: (context, index) {
-                  bool isSelected = _selectedAvatarIndex == index;
-
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedAvatarIndex = index; // Update selected avatar
-                      });
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      margin: EdgeInsets.only(right: 16.w),
-                      padding: EdgeInsets.all(isSelected ? 4.w : 0), // Padding creates the border gap
-                      decoration: BoxDecoration(
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // --- THE ID BADGE CARD ---
+              Container(
+                width: 300.w,
+                padding: EdgeInsets.symmetric(vertical: 32.h, horizontal: 24.w),
+                decoration: BoxDecoration(
+                  // We'll use a gradient similar to your mockup, but refined
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      AppTheme.primaryBlue,
+                      const Color(0xFF005b9f), // A slightly darker shade of your primary blue
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(20.r),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.primaryBlue.withOpacity(0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    )
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    // User Avatar
+                    Container(
+                      padding: EdgeInsets.all(4.w),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: isSelected ? AppTheme.primaryBlue : Colors.transparent,
-                          width: 3.w,
-                        ),
                       ),
                       child: CircleAvatar(
-                        radius: 35.r,
-                        backgroundImage: NetworkImage(_avatarOptions[index]),
+                        radius: 40.r,
+                        backgroundImage: const NetworkImage('https://i.pravatar.cc/150?img=11'),
+                        backgroundColor: Colors.grey[200],
                       ),
                     ),
-                  );
-                },
-              ),
-            ),
+                    SizedBox(height: 16.h),
 
-            SizedBox(height: 40.h),
+                    // User Name
+                    Text(
+                      userName,
+                      style: TextStyle(
+                        fontSize: 22.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 24.h),
 
-            // --- USER INFO FORM ---
-            Text(
-              "Personal Information",
-              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
-            ),
-            SizedBox(height: 20.h),
+                    // The QR Code (Dynamically Generated!)
+                    Container(
+                      padding: EdgeInsets.all(12.w),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      child: QrImageView(
+                        data: userIdString, // The actual data embedded in the QR
+                        version: QrVersions.auto,
+                        size: 180.w,
+                        backgroundColor: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 24.h),
 
-            _buildTextField("Full Name", "Gian Russell D. Villegas"),
-            SizedBox(height: 16.h),
-            _buildTextField("Email Address", "villegasgianrussell@gmail.com"),
-            SizedBox(height: 16.h),
-            _buildTextField("Location", "Tabaco City, Albay"),
-            SizedBox(height: 16.h),
-            _buildTextField("University / Organization", "Bicol University"),
-
-            SizedBox(height: 40.h),
-
-            // --- SAVE BUTTON ---
-            SizedBox(
-              width: double.infinity,
-              height: 50.h,
-              child: ElevatedButton(
-                onPressed: () {
-                  // TODO: Connect to Dio to update backend
-                  print("Saved Avatar Index: $_selectedAvatarIndex");
-                  context.pop(); // Go back after saving
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBlue,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                    // Status Text
+                    Text(
+                      userStatus,
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 2.0, // Adds nice spacing for status labels
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
-                child: Text("SAVE CHANGES", style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: Colors.white)),
               ),
-            ),
-            SizedBox(height: 20.h),
-          ],
-        ),
-      ),
-    );
-  }
 
-  // Helper widget for clean form fields
-  Widget _buildTextField(String label, String initialValue) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold, color: Colors.grey[600]),
-        ),
-        SizedBox(height: 8.h),
-        TextFormField(
-          initialValue: initialValue,
-          style: TextStyle(fontSize: 14.sp, color: Colors.black87),
-          decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-            filled: true,
-            fillColor: Colors.grey.shade50,
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: BorderSide(color: Colors.grey.shade300),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: const BorderSide(color: AppTheme.primaryBlue),
-            ),
+              SizedBox(height: 40.h),
+
+              // Helper text underneath the card
+              Text(
+                "Present this QR code to marshals\nfor event check-ins and surveys.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  color: Colors.grey[600],
+                  height: 1.5,
+                ),
+              ),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 }

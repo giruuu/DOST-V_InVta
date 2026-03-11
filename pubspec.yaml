@@ -52,6 +52,7 @@ dependencies:
   google_fonts: ^6.2.1
   cached_network_image: ^3.3.1
   flutter_svg: ^2.0.10
+  qr_flutter: ^4.1.0
 
   # Features
   # mobile_scanner: ^3.5.6 # For QR Code scanning
