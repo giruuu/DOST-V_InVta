@@ -7,6 +7,9 @@ import '../../features/events/screens/events_screen.dart';
 import '../../features/announcements/screens/announcements_screen.dart';
 import '../../features/menu/screens/menu_screen.dart';
 import '../../features/events/screens/event_details_screen.dart';
+import '../../features/events/screens/sub_events_details_screen.dart';
+import '../../features/profile/screens/profile_screen.dart';
+
 
 // Navigator Keys for maintaining state across tabs
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -80,6 +83,13 @@ final appRouter = GoRouter(
       builder: (context, state) => const Scaffold(body: Center(child: Text('Login Screen'))),
     ),
 
+    // PROFILE SCREEN
+    GoRoute(
+      path: '/profile',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ProfileScreen(),
+    ),
+
     // NEW DETAILS ROUTE (WITH SLIDE-UP ANIMATION)
     GoRoute(
       path: '/event-details',
@@ -101,6 +111,28 @@ final appRouter = GoRouter(
               position: animation.drive(tween),
               child: child,
             );
+          },
+        );
+      },
+    ),
+
+    // SUB-EVENT / EXHIBIT DETAILS ROUTE
+    GoRoute(
+      path: '/sub-event-details/:type', // The ':type' variable grabs the word from the URL
+      parentNavigatorKey: _rootNavigatorKey,
+      pageBuilder: (context, state) {
+        // Check the URL parameter to see if it's an exhibit
+        final bool isExhibit = state.pathParameters['type'] == 'exhibit';
+
+        return CustomTransitionPage(
+          key: state.pageKey,
+          child: SubEventDetailsScreen(isExhibit: isExhibit), // Pass it to the screen
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(0.0, 1.0);
+            const end = Offset.zero;
+            const curve = Curves.easeOutCubic;
+            var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            return SlideTransition(position: animation.drive(tween), child: child);
           },
         );
       },

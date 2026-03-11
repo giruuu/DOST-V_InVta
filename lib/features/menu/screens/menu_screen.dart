@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../core/theme/app_theme.dart';
+import 'package:go_router/go_router.dart';
 
 class MenuScreen extends StatelessWidget {
   const MenuScreen({super.key});
@@ -51,7 +52,7 @@ class MenuScreen extends StatelessWidget {
             _buildMenuItem(
               icon: Icons.person_outline,
               title: "Profile",
-              onTap: () => print("Profile Tapped"),
+              onTap: () => context.push('/profile'),
             ),
             _buildMenuItem(
               icon: Icons.vpn_key_outlined,
