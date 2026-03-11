@@ -8,12 +8,12 @@ class BannerEventCard extends StatelessWidget {
   final String description;
   final String date;
   final String time;
-  final String statusText;
-  final Color statusColor; // Added for dynamic status colors
-  final String primaryActionText; // Added for dynamic button text
-  final VoidCallback? onPrimaryAction; // Nullable to allow disabled state
-  final VoidCallback onSeeMore;
   final String? imageUrl;
+  final String statusText;
+  final Color statusColor;
+  final String primaryButtonText;
+  final VoidCallback? onPrimaryAction;
+  final VoidCallback? onSeeMore;
 
   const BannerEventCard({
     super.key,
@@ -21,142 +21,143 @@ class BannerEventCard extends StatelessWidget {
     required this.description,
     required this.date,
     required this.time,
+    this.imageUrl,
     required this.statusText,
     required this.statusColor,
-    required this.primaryActionText,
+    required this.primaryButtonText,
     this.onPrimaryAction,
-    required this.onSeeMore,
-    this.imageUrl,
+    this.onSeeMore,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 350.h,
-      margin: EdgeInsets.only(bottom: 20.h),
+      margin: EdgeInsets.only(bottom: 24.h),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ==========================================================
-          // PART 1: TOP IMAGE (40%)
-          // ==========================================================
-          Expanded(
-            flex: 4,
-            child: ClipRRect(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
-              child: SizedBox(
-                width: double.infinity,
-                child: imageUrl != null
-                    ? CachedNetworkImage(
-                  imageUrl: imageUrl!,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(color: Colors.grey[200]),
-                  errorWidget: (context, url, error) => _buildPlaceholder(),
-                )
-                    : _buildPlaceholder(),
+          Stack(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 140.h,
+                  child: imageUrl != null
+                      ? CachedNetworkImage(
+                    imageUrl: imageUrl!,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(color: Colors.grey[100]),
+                    errorWidget: (context, url, error) => Container(color: Colors.grey[200]),
+                  )
+                      : Container(color: Colors.grey[300]),
+                ),
               ),
-            ),
-          ),
-
-          // ==========================================================
-          // PART 2: INFO FIELD (60%)
-          // ==========================================================
-          Expanded(
-            flex: 6,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title.toUpperCase(),
-                    style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
+              Positioned(
+                top: 12.h,
+                right: 12.w,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
+                  decoration: BoxDecoration(
+                    color: const Color(0x4D000000), // 30% Opacity Black
+                    borderRadius: BorderRadius.circular(8.r),
+                    border: Border.all(color: statusColor, width: 1.w),
                   ),
-                  SizedBox(height: 8.h),
-                  Expanded(
-                    child: Text(
-                      description,
-                      maxLines: 4,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 12.sp, color: Colors.grey[600], height: 1.45),
+                  child: Text(
+                    statusText,
+                    style: TextStyle(
+                      color: statusColor,
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 12.h),
-                  Row(
-                    children: [
-                      Text(date, style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold)),
-                      SizedBox(width: 24.w),
-                      Text(time, style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                  SizedBox(height: 16.h),
-
-                  // Status and Buttons
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      // Dynamic Status Text Color
-                      Text(
-                        statusText,
-                        style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold, color: statusColor),
-                      ),
-
-                      Column(
-                        children: [
-                          SizedBox(
-                            width: 120.w,
-                            height: 32.h,
-                            child: ElevatedButton(
-                              onPressed: onPrimaryAction, // If null, button disables automatically
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.primaryBlue,
-                                disabledBackgroundColor: Colors.grey[400], // The grey color from your design
-                                disabledForegroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.r)),
-                                padding: EdgeInsets.zero,
-                              ),
-                              child: Text(primaryActionText, style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.bold)),
-                            ),
-                          ),
-                          SizedBox(height: 8.h),
-                          SizedBox(
-                            width: 120.w,
-                            height: 32.h,
-                            child: OutlinedButton(
-                              onPressed: onSeeMore,
-                              style: OutlinedButton.styleFrom(
-                                side: const BorderSide(color: AppTheme.primaryBlue),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.r)),
-                                padding: EdgeInsets.zero,
-                              ),
-                              child: Text("SEE MORE", style: TextStyle(fontSize: 10.sp, color: AppTheme.primaryBlue)),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
+            ],
+          ),
+          Padding(
+            padding: EdgeInsets.all(16.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title.toUpperCase(),
+                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  description,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 11.sp, color: Colors.grey[600], height: 1.4),
+                ),
+                SizedBox(height: 12.h),
+                Row(
+                  children: [
+                    Text(date, style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.bold, color: Colors.grey[800])),
+                    SizedBox(width: 24.w),
+                    Text(time, style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.bold, color: Colors.grey[800])),
+                  ],
+                ),
+                SizedBox(height: 16.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    // PRIMARY BUTTON - FIXED HEIGHT & PADDING
+                    SizedBox(
+                      height: 40.h,
+                      width: 125.w,
+                      child: ElevatedButton(
+                        onPressed: onPrimaryAction,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryBlue,
+                          disabledBackgroundColor: Colors.grey[300],
+                          elevation: 0,
+                          padding: EdgeInsets.zero, // Important to prevent clipping
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+                        ),
+                        child: Text(
+                            primaryButtonText,
+                            style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.bold, color: Colors.white)
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    // SEE MORE BUTTON - FIXED HEIGHT & PADDING
+                    SizedBox(
+                      height: 40.h,
+                      width: 100.w,
+                      child: OutlinedButton(
+                        onPressed: onSeeMore,
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: AppTheme.primaryBlue),
+                          padding: EdgeInsets.zero, // Important to prevent clipping
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+                        ),
+                        child: Text(
+                            "SEE MORE",
+                            style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue)
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildPlaceholder() {
-    return Container(
-      color: Colors.grey[200],
-      child: Center(child: Image.asset('assets/images/DOST_Logo.png', width: 80.w, fit: BoxFit.contain)),
     );
   }
 }

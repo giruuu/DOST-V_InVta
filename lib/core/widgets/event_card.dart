@@ -9,7 +9,14 @@ class EventCard extends StatelessWidget {
   final String date;
   final String time;
   final String? imageUrl;
+
+  // Status Variables
   final String statusText;
+  final Color statusTextColor; // This will now color BOTH the text and the border!
+
+  // Action Variables
+  final String primaryButtonText;
+  final VoidCallback? onPrimaryAction;
   final VoidCallback? onSeeMore;
 
   const EventCard({
@@ -18,112 +25,151 @@ class EventCard extends StatelessWidget {
     required this.description,
     required this.date,
     required this.time,
-    this.imageUrl, // Nullable
-    this.statusText = "MAIN EVENT", // Default value
-    this.onSeeMore, // Optional callback
+    this.imageUrl,
+    this.statusText = "Incoming",
+    this.statusTextColor = const Color(0xFFFFBF00),
+    this.primaryButtonText = "REGISTER",
+    this.onPrimaryAction,
+    this.onSeeMore,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 16.h),
-      padding: EdgeInsets.all(12.w),
+      margin: EdgeInsets.only(bottom: 24.h),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          // --- 1. TOP SECTION: IMAGE & BADGE STACK ---
+          Stack(
             children: [
-              // 1. Image Section (Asset fallback if imageUrl is null)
               ClipRRect(
-                borderRadius: BorderRadius.circular(8.r),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
                 child: SizedBox(
-                  width: 85.w,
-                  height: 85.w,
+                  width: double.infinity,
+                  height: 140.h,
                   child: imageUrl != null
                       ? CachedNetworkImage(
                     imageUrl: imageUrl!,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Container(color: Colors.grey[100]),
-                    errorWidget: (context, url, error) => Image.asset('assets/images/DOST_Logo.png'),
+                    errorWidget: (context, url, error) => Image.asset('assets/images/DOST_Logo.png', fit: BoxFit.contain),
                   )
-                      : Image.asset('assets/images/DOST_Logo.png', fit: BoxFit.contain),
+                      : Image.network('https://picsum.photos/800/400', fit: BoxFit.cover),
                 ),
               ),
-              SizedBox(width: 12.w),
 
-              // 2. Content Section
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title.toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.primaryBlue,
-                      ),
+              // NEW: Dynamic Status Badge with Stroke and 30% Black Background
+              Positioned(
+                top: 12.h,
+                right: 12.w,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
+                  decoration: BoxDecoration(
+                    color: const Color(0x4D000000), // 4D in hex = 30% opacity, 000000 = Black
+                    borderRadius: BorderRadius.circular(8.r),
+                    border: Border.all(
+                      color: statusTextColor, // The stroke uses your dynamic text color!
+                      width: 1.w, // Stroke thickness
                     ),
-                    SizedBox(height: 4.h),
-                    Text(
-                      description,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 11.sp, color: Colors.grey[600], height: 1.3),
+                  ),
+                  child: Text(
+                    statusText,
+                    style: TextStyle(
+                      color: statusTextColor,
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.bold,
                     ),
-                    SizedBox(height: 8.h),
-                    Text(
-                      "$date   $time",
-                      style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.bold, color: Colors.black87),
-                    ),
-                    SizedBox(height: 8.h),
-
-                    // Status Badge
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryBlue,
-                        borderRadius: BorderRadius.circular(4.r),
-                      ),
-                      child: Text(
-                        statusText.toUpperCase(),
-                        style: TextStyle(color: Colors.white, fontSize: 9.sp, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ],
           ),
 
-          // 3. Action Button
-          // 3. Action Button
-          Align(
-            alignment: Alignment.centerRight,
-            child: OutlinedButton(
-              // FIX: Just pass the 'onSeeMore' variable here!
-              onPressed: onSeeMore,
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppTheme.primaryBlue),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
-                minimumSize: Size(100.w, 32.h),
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-              ),
-              child: Text(
-                "SEE MORE",
-                style: TextStyle(fontSize: 11.sp, color: AppTheme.primaryBlue, fontWeight: FontWeight.bold),
-              ),
+          // --- 2. BOTTOM SECTION: TEXT & BUTTONS ---
+          Padding(
+            padding: EdgeInsets.all(16.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Title
+                Text(
+                  title.toUpperCase(),
+                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
+                ),
+                SizedBox(height: 8.h),
+
+                // Description
+                Text(
+                  description,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 11.sp, color: Colors.grey[600], height: 1.5),
+                ),
+                SizedBox(height: 12.h),
+
+                // Date and Time
+                Row(
+                  children: [
+                    Text(date, style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.bold, color: Colors.grey[800])),
+                    SizedBox(width: 24.w),
+                    Text(time, style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.bold, color: Colors.grey[800])),
+                  ],
+                ),
+                SizedBox(height: 16.h),
+
+                // Action Buttons
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // PRIMARY BUTTON
+                      SizedBox(
+                        height: 32.h,
+                        width: 110.w,
+                        child: ElevatedButton(
+                          onPressed: onPrimaryAction ?? () => print("$primaryButtonText Tapped"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primaryBlue,
+                            elevation: 0,
+                            padding: EdgeInsets.zero,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.r)),
+                          ),
+                          child: Text(primaryButtonText, style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.bold, color: Colors.white)),
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+
+                      // SEE MORE BUTTON
+                      SizedBox(
+                        height: 32.h,
+                        width: 90.w,
+                        child: OutlinedButton(
+                          onPressed: onSeeMore,
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: AppTheme.primaryBlue),
+                            padding: EdgeInsets.zero,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.r)),
+                          ),
+                          child: Text("SEE MORE", style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ],

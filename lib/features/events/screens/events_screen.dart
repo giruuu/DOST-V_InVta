@@ -16,23 +16,32 @@ class _EventsScreenState extends State<EventsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    bool isAvailableTab = _selectedTabIndex == 0; // Check which tab is active
+    bool isAvailableTab = _selectedTabIndex == 0;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       body: SafeArea(
         child: Column(
           children: [
+            // Header with Back Button and Title in one row
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-              child: Row(
-                children: [
-                  Icon(Icons.arrow_back_ios, color: AppTheme.primaryBlue, size: 20.w),
-                  Text("Events", style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue)),
-                ],
+              child: GestureDetector(
+                onTap: () => context.go('/home'),
+                child: Row(
+                  children: [
+                    Icon(Icons.arrow_back_ios, color: AppTheme.primaryBlue, size: 20.w),
+                    SizedBox(width: 4.w),
+                    Text(
+                        "Events",
+                        style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue)
+                    ),
+                  ],
+                ),
               ),
             ),
 
+            // Toggle Tab
             Container(
               margin: EdgeInsets.symmetric(horizontal: 20.w),
               height: 48.h,
@@ -48,31 +57,28 @@ class _EventsScreenState extends State<EventsScreen> {
 
             SizedBox(height: 20.h),
 
+            // Events List
             Expanded(
               child: ListView.builder(
                 padding: EdgeInsets.symmetric(horizontal: 20.w),
                 itemCount: 4,
                 itemBuilder: (context, index) {
-                  // --- DYNAMIC LOGIC BASED ON TAB ---
                   String statusText;
                   Color statusColor;
-                  String primaryActionText;
+                  String primaryButtonText;
                   VoidCallback? onPrimaryAction;
 
                   if (isAvailableTab) {
-                    // TAB: Available
                     statusText = "Incoming";
-                    statusColor = Colors.orange;
-                    primaryActionText = "REGISTER";
+                    statusColor = const Color(0xFFFFD700); // Gold
+                    primaryButtonText = "REGISTER";
                     onPrimaryAction = () => print("Register Tapped");
                   } else {
-                    // TAB: My Events (Alternating for demonstration)
-                    bool isEnded = index % 2 == 0; // Even items are "Ended", Odd are "Ongoing"
+                    bool isEnded = index % 2 == 0;
                     statusText = isEnded ? "Ended" : "Ongoing";
-                    statusColor = isEnded ? Colors.red : Colors.green;
-                    primaryActionText = "ANSWER SURVEY";
-                    // Pass null if ongoing to disable the button automatically
-                    onPrimaryAction = isEnded ? () => print("Survey Tapped") : null;
+                    statusColor = isEnded ? Colors.redAccent : Colors.greenAccent.shade400;
+                    primaryButtonText = isEnded ? "ANSWER SURVEY" : "WALK IN";
+                    onPrimaryAction = () => print("$primaryButtonText Tapped");
                   }
 
                   return BannerEventCard(
@@ -82,8 +88,8 @@ class _EventsScreenState extends State<EventsScreen> {
                     time: "06:16 PM",
                     imageUrl: "https://picsum.photos/800/400?random=$index",
                     statusText: statusText,
-                    statusColor: statusColor,
-                    primaryActionText: primaryActionText,
+                    statusColor: statusColor, // Syncs with widget parameter
+                    primaryButtonText: primaryButtonText,
                     onPrimaryAction: onPrimaryAction,
                     onSeeMore: () => context.push('/event-details'),
                   );
@@ -109,7 +115,11 @@ class _EventsScreenState extends State<EventsScreen> {
           alignment: Alignment.center,
           child: Text(
             title,
-            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: isActive ? Colors.white : Colors.grey[500]),
+            style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.bold,
+                color: isActive ? Colors.white : Colors.grey[500]
+            ),
           ),
         ),
       ),

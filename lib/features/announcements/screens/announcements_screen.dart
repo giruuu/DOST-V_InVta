@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
 
 class AnnouncementsScreen extends StatelessWidget {
@@ -8,63 +9,71 @@ class AnnouncementsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF8FAFC), // Brighter, modern grey
       body: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. Header
+            // --- HEADER ---
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-              child: Row(
-                children: [
-                  Icon(Icons.arrow_back_ios, color: AppTheme.primaryBlue, size: 20.w),
-                  Text(
-                    "Announcements",
-                    style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
-                  ),
-                ],
+              child: GestureDetector(
+                onTap: () => context.go('/home'),
+                child: Row(
+                  children: [
+                    Icon(Icons.arrow_back_ios, color: AppTheme.primaryBlue, size: 20.w),
+                    SizedBox(width: 4.w),
+                    Text(
+                      "Announcements",
+                      style: TextStyle(
+                        fontSize: 22.sp,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primaryBlue,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
 
-            // 2. Expandable List
+            // --- LIST ---
             Expanded(
               child: ListView(
                 padding: EdgeInsets.symmetric(horizontal: 20.w),
                 children: [
                   _buildDateHeader("Today"),
-                  const AnnouncementTile(
-                    title: "Announcement Title",
-                    body: "Announcement message here: ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullam",
-                    timestamp: "Just Now",
-                    isInitiallyExpanded: true, // Matches your Figma showing the top one open
+                  _buildAnnouncementItem(
+                    title: "System Maintenance",
+                    message: "The InVta platform will undergo a brief maintenance period tonight to improve performance. Thank you for your patience.",
+                    time: "Just Now",
+                    isUrgent: true,
+                    isNew: true,
                   ),
-                  const AnnouncementTile(
-                    title: "Announcement Title",
-                    body: "Short update regarding the recent system maintenance.",
-                    timestamp: "20mins ago",
+                  _buildAnnouncementItem(
+                    title: "Event Venue Change",
+                    message: "The 'Tech Summit 2026' has been moved from Hall A to the Grand Ballroom. Please check your digital ID for the updated QR info.",
+                    time: "20mins ago",
+                    isUrgent: false,
+                    isNew: true,
                   ),
 
-                  SizedBox(height: 16.h),
                   _buildDateHeader("Yesterday"),
-                  const AnnouncementTile(
-                    title: "Announcement Title",
-                    body: "Please ensure your profiles are fully updated by Friday.",
-                    timestamp: "8:30 PM",
-                  ),
-                  const AnnouncementTile(
-                    title: "Announcement Title",
-                    body: "The upcoming DOST seminar has a new venue.",
-                    timestamp: "8:30 PM",
+                  _buildAnnouncementItem(
+                    title: "Registration Reminder",
+                    message: "Early bird registration for the Summer Workshop ends this Friday. Don't forget to claim your points!",
+                    time: "8:30 PM",
+                    isUrgent: false,
+                    isNew: false,
                   ),
 
-                  SizedBox(height: 16.h),
                   _buildDateHeader("March 4, 2026"),
-                  const AnnouncementTile(
-                    title: "Announcement Title",
-                    body: "Welcome to the InVta platform! Explore your dashboard.",
-                    timestamp: "8:30 PM",
+                  _buildAnnouncementItem(
+                    title: "Welcome to InVta!",
+                    message: "Welcome Gian Russell! We're glad to have you here. Explore your dashboard to see upcoming events in Bicol University.",
+                    time: "10:15 AM",
+                    isUrgent: false,
+                    isNew: false,
                   ),
+                  SizedBox(height: 20.h),
                 ],
               ),
             ),
@@ -74,113 +83,99 @@ class AnnouncementsScreen extends StatelessWidget {
     );
   }
 
-  // Helper for the gray date text
-  Widget _buildDateHeader(String date) {
+  Widget _buildDateHeader(String text) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 8.h),
+      padding: EdgeInsets.only(top: 24.h, bottom: 12.h),
       child: Text(
-        date,
-        style: TextStyle(fontSize: 12.sp, color: Colors.grey[500], fontWeight: FontWeight.w500),
+        text,
+        style: TextStyle(
+          fontSize: 13.sp,
+          fontWeight: FontWeight.w600,
+          color: Colors.grey[500],
+        ),
       ),
     );
   }
-}
 
-// =========================================================================
-// CUSTOM EXPANDABLE TILE
-// =========================================================================
-class AnnouncementTile extends StatefulWidget {
-  final String title;
-  final String body;
-  final String timestamp;
-  final bool isInitiallyExpanded;
-
-  const AnnouncementTile({
-    super.key,
-    required this.title,
-    required this.body,
-    required this.timestamp,
-    this.isInitiallyExpanded = false,
-  });
-
-  @override
-  State<AnnouncementTile> createState() => _AnnouncementTileState();
-}
-
-class _AnnouncementTileState extends State<AnnouncementTile> {
-  late bool _isExpanded;
-
-  @override
-  void initState() {
-    super.initState();
-    _isExpanded = widget.isInitiallyExpanded;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _isExpanded = !_isExpanded;
-        });
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        margin: EdgeInsets.only(bottom: 8.h),
-        padding: EdgeInsets.all(12.w),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(6.r),
-          // Light blue border matching Figma
-          border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.5)),
+  Widget _buildAnnouncementItem({
+    required String title,
+    required String message,
+    required String time,
+    bool isUrgent = false,
+    bool isNew = false,
+  }) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 12.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(
+          color: isUrgent ? Colors.red.withOpacity(0.3) : Colors.grey.shade200,
+          width: 1,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // TOP ROW
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  widget.title,
-                  style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.bold, color: Colors.black87),
-                ),
-                Row(
-                  children: [
-                    // Only show time here if COLLAPSED
-                    if (!_isExpanded)
-                      Text(
-                        widget.timestamp,
-                        style: TextStyle(fontSize: 10.sp, color: Colors.grey[600], fontWeight: FontWeight.bold),
-                      ),
-                    SizedBox(width: 8.w),
-                    Icon(
-                      _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                      color: AppTheme.primaryBlue,
-                      size: 20.w,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-
-            // EXPANDED BODY
-            if (_isExpanded) ...[
-              SizedBox(height: 12.h),
-              Text(
-                widget.body,
-                style: TextStyle(fontSize: 12.sp, color: Colors.grey[800], height: 1.4),
-              ),
-              SizedBox(height: 12.h),
-              // Show time here if EXPANDED
-              Align(
-                alignment: Alignment.centerRight,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          )
+        ],
+      ),
+      child: Theme(
+        data: ThemeData().copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          tilePadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+          leading: Icon(
+            isUrgent ? Icons.error_outline : Icons.notifications_none_rounded,
+            color: isUrgent ? Colors.red : AppTheme.primaryBlue,
+            size: 24.w,
+          ),
+          title: Row(
+            children: [
+              Expanded(
                 child: Text(
-                  widget.timestamp,
-                  style: TextStyle(fontSize: 10.sp, color: Colors.black, fontWeight: FontWeight.bold),
+                  title,
+                  style: TextStyle(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
                 ),
               ),
+              if (isNew)
+                Container(
+                  width: 8.w,
+                  height: 8.w,
+                  decoration: const BoxDecoration(
+                    color: Colors.blue,
+                    shape: BoxShape.circle,
+                  ),
+                ),
             ],
+          ),
+          subtitle: Text(
+            time,
+            style: TextStyle(fontSize: 11.sp, color: Colors.grey[600]),
+          ),
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 56.w, right: 16.w, bottom: 16.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Divider(color: Colors.grey.shade100, height: 1.h),
+                  SizedBox(height: 12.h),
+                  Text(
+                    message,
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      color: Colors.grey[700],
+                      height: 1.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
