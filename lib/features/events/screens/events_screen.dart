@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/banner_event_card.dart';
-import '../../../core/utils/registration_sheet.dart'; // 1. Import the new utility
+import '../../../core/utils/registration_sheet.dart';
 
 class EventsScreen extends StatefulWidget {
   const EventsScreen({super.key});
@@ -15,6 +15,9 @@ class EventsScreen extends StatefulWidget {
 class _EventsScreenState extends State<EventsScreen> {
   int _selectedTabIndex = 0;
 
+  // NEW: State variable to track which events are registered (using index for demo)
+  final Set<int> _registeredEvents = {};
+
   @override
   Widget build(BuildContext context) {
     bool isAvailableTab = _selectedTabIndex == 0;
@@ -24,7 +27,6 @@ class _EventsScreenState extends State<EventsScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header with Back Button and Title in one row
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
               child: GestureDetector(
@@ -42,7 +44,6 @@ class _EventsScreenState extends State<EventsScreen> {
               ),
             ),
 
-            // Toggle Tab
             Container(
               margin: EdgeInsets.symmetric(horizontal: 20.w),
               height: 48.h,
@@ -58,7 +59,6 @@ class _EventsScreenState extends State<EventsScreen> {
 
             SizedBox(height: 20.h),
 
-            // Events List
             Expanded(
               child: ListView.builder(
                 padding: EdgeInsets.symmetric(horizontal: 20.w),
@@ -67,19 +67,57 @@ class _EventsScreenState extends State<EventsScreen> {
                   String statusText;
                   Color statusColor;
                   String primaryButtonText;
+                  VoidCallback? onPrimaryAction;
 
-                  // Temporary name for the demo
                   String currentEventName = "Event Name ${index + 1}";
+
+                  // Check if this specific event index is in our "registered" set
+                  bool hasRegistered = _registeredEvents.contains(index);
 
                   if (isAvailableTab) {
                     statusText = "Incoming";
-                    statusColor = const Color(0xFFFFD700); // Gold
-                    primaryButtonText = "REGISTER";
+                    statusColor = const Color(0xFFFFD700);
+
+                    // Logic: If registered, change text and disable button
+                    if (hasRegistered) {
+                      primaryButtonText = "REGISTERED";
+                      onPrimaryAction = null; // Passing null makes the button grey!
+                    } else {
+                      primaryButtonText = "REGISTER";
+                      onPrimaryAction = () {
+                        RegistrationSheet.show(
+                          context,
+                          eventName: currentEventName,
+                          type: primaryButtonText,
+                          onSuccess: () {
+                            setState(() {
+                              _registeredEvents.add(index); // Mark as registered
+                            });
+                          },
+                        );
+                      };
+                    }
                   } else {
                     bool isEnded = index % 2 == 0;
                     statusText = isEnded ? "Ended" : "Ongoing";
                     statusColor = isEnded ? Colors.redAccent : Colors.greenAccent.shade400;
-                    primaryButtonText = isEnded ? "ANSWER SURVEY" : "WALK IN";
+
+                    if (hasRegistered && !isEnded) {
+                      primaryButtonText = "JOINED";
+                      onPrimaryAction = null;
+                    } else {
+                      primaryButtonText = isEnded ? "ANSWER SURVEY" : "WALK IN";
+                      onPrimaryAction = () {
+                        if (!isEnded) {
+                          RegistrationSheet.show(
+                            context,
+                            eventName: currentEventName,
+                            type: primaryButtonText,
+                            onSuccess: () => setState(() => _registeredEvents.add(index)),
+                          );
+                        }
+                      };
+                    }
                   }
 
                   return BannerEventCard(
@@ -91,20 +129,7 @@ class _EventsScreenState extends State<EventsScreen> {
                     statusText: statusText,
                     statusColor: statusColor,
                     primaryButtonText: primaryButtonText,
-                    onPrimaryAction: () {
-                      // 2. Implementation: Trigger the Registration Sheet
-                      // We only show the sheet for REGISTER and WALK IN
-                      if (primaryButtonText == "REGISTER" || primaryButtonText == "WALK IN") {
-                        RegistrationSheet.show(
-                          context,
-                          eventName: currentEventName,
-                          type: primaryButtonText,
-                        );
-                      } else if (primaryButtonText == "ANSWER SURVEY") {
-                        print("Navigating to Survey...");
-                        // context.push('/survey');
-                      }
-                    },
+                    onPrimaryAction: onPrimaryAction, // Passes null if registered
                     onSeeMore: () => context.push('/event-details'),
                   );
                 },
