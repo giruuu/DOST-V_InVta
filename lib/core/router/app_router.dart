@@ -107,7 +107,11 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/profile',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const ProfileScreen(),
+      builder: (context, state) {
+        // Extract the image path, or default to profile_1 if something goes wrong
+        final imagePath = state.extra as String? ?? 'assets/profiles/profile_1.jpg';
+        return ProfileScreen(profileImagePath: imagePath);
+      },
     ),
 
     // SIGN UP - STEP 2

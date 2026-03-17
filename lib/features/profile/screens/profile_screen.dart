@@ -5,11 +5,13 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../../../core/theme/app_theme.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  final String profileImagePath; // 1. ADD THIS VARIABLE
+
+  const ProfileScreen({super.key, required this.profileImagePath});
 
   @override
   Widget build(BuildContext context) {
-    // Dummy user data for the ID badge
+    // Dummy user data
     final String userName = "Gian Russell Villegas";
     final String userStatus = "REGISTERED";
     final String userIdString = "INVTA-USER-89234";
@@ -35,97 +37,56 @@ class ProfileScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // --- THE ID BADGE CARD ---
               Container(
                 width: 300.w,
                 padding: EdgeInsets.symmetric(vertical: 32.h, horizontal: 24.w),
                 decoration: BoxDecoration(
-                  // We'll use a gradient similar to your mockup, but refined
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
                       AppTheme.primaryBlue,
-                      const Color(0xFF005b9f), // A slightly darker shade of your primary blue
+                      const Color(0xFF005b9f),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(20.r),
                   boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(0.3),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    )
+                    BoxShadow(color: AppTheme.primaryBlue.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 10))
                   ],
                 ),
                 child: Column(
                   children: [
-                    // User Avatar
+                    // 2. CLEANED UP AVATAR (No edit button, no GestureDetector)
                     Container(
                       padding: EdgeInsets.all(4.w),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
+                      decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
                       child: CircleAvatar(
                         radius: 40.r,
-                        backgroundImage: const NetworkImage('https://i.pravatar.cc/150?img=11'),
+                        backgroundImage: AssetImage(profileImagePath), // USE THE VARIABLE HERE
                         backgroundColor: Colors.grey[200],
                       ),
                     ),
                     SizedBox(height: 16.h),
 
-                    // User Name
-                    Text(
-                      userName,
-                      style: TextStyle(
-                        fontSize: 22.sp,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
+                    Text(userName, style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.bold, color: Colors.white), textAlign: TextAlign.center),
                     SizedBox(height: 24.h),
 
                     Container(
                       padding: EdgeInsets.all(12.w),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12.r),
-                      ),
-                      child: QrImageView(
-                        data: userIdString,
-                        version: QrVersions.auto,
-                        size: 180.w,
-                        backgroundColor: Colors.white,
-                      ),
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12.r)),
+                      child: QrImageView(data: userIdString, version: QrVersions.auto, size: 180.w, backgroundColor: Colors.white),
                     ),
                     SizedBox(height: 24.h),
 
-
-                    Text(
-                      userStatus,
-                      style: TextStyle(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 2.0,
-                        color: Colors.white,
-                      ),
-                    ),
+                    Text(userStatus, style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w900, letterSpacing: 2.0, color: Colors.white)),
                   ],
                 ),
               ),
-
               SizedBox(height: 40.h),
-
               Text(
-                "Present this QR code to marshals\nfor event check-ins and surveys.",
+                "Present this QR code to marshals\nfor event attendance.",
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  color: Colors.grey[600],
-                  height: 1.5,
-                ),
+                style: TextStyle(fontSize: 12.sp, color: Colors.grey[600], height: 1.5),
               ),
             ],
           ),
