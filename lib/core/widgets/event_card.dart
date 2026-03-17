@@ -12,7 +12,7 @@ class EventCard extends StatelessWidget {
 
   // Status Variables
   final String statusText;
-  final Color statusTextColor; // This will now color BOTH the text and the border!
+  final Color statusTextColor;
 
   // Action Variables
   final String primaryButtonText;

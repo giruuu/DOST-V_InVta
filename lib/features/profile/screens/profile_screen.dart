@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:qr_flutter/qr_flutter.dart'; // Import the new package
+import 'package:qr_flutter/qr_flutter.dart';
 import '../../../core/theme/app_theme.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -12,10 +12,10 @@ class ProfileScreen extends StatelessWidget {
     // Dummy user data for the ID badge
     final String userName = "Gian Russell Villegas";
     final String userStatus = "REGISTERED";
-    final String userIdString = "INVTA-USER-89234"; // This is what the QR code will store!
+    final String userIdString = "INVTA-USER-89234";
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5), // Light grey background to make the card pop
+      backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -87,7 +87,6 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 24.h),
 
-                    // The QR Code (Dynamically Generated!)
                     Container(
                       padding: EdgeInsets.all(12.w),
                       decoration: BoxDecoration(
@@ -95,7 +94,7 @@ class ProfileScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                       child: QrImageView(
-                        data: userIdString, // The actual data embedded in the QR
+                        data: userIdString,
                         version: QrVersions.auto,
                         size: 180.w,
                         backgroundColor: Colors.white,
@@ -103,13 +102,13 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 24.h),
 
-                    // Status Text
+
                     Text(
                       userStatus,
                       style: TextStyle(
                         fontSize: 18.sp,
                         fontWeight: FontWeight.w900,
-                        letterSpacing: 2.0, // Adds nice spacing for status labels
+                        letterSpacing: 2.0,
                         color: Colors.white,
                       ),
                     ),
@@ -119,7 +118,6 @@ class ProfileScreen extends StatelessWidget {
 
               SizedBox(height: 40.h),
 
-              // Helper text underneath the card
               Text(
                 "Present this QR code to marshals\nfor event check-ins and surveys.",
                 textAlign: TextAlign.center,

@@ -10,7 +10,6 @@ class OtherEventsTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // 1. ADDED THE MISSING TITLE HERE
         SizedBox(height: 24.h),
         Text(
           "OTHER EVENTS",
@@ -22,7 +21,6 @@ class OtherEventsTab extends StatelessWidget {
         ),
         SizedBox(height: 16.h),
 
-        // 2. Wrapped the ListView in an Expanded so it takes the remaining space
         Expanded(
           child: ListView.builder(
             padding: EdgeInsets.symmetric(horizontal: 24.w),

@@ -20,14 +20,14 @@ class MenuScreen extends StatelessWidget {
               child: Column(
                 children: [
                   CircleAvatar(
-                    radius: 50.r, // Slightly larger for full-screen
-                    backgroundImage: const NetworkImage('https://picsum.photos/200'), // Placeholder
+                    radius: 50.r,
+                    backgroundImage: const NetworkImage('https://picsum.photos/200'),
                   ),
                   SizedBox(height: 16.h),
                   Text(
                     "Gian Russell Villegas",
                     style: TextStyle(
-                      fontSize: 20.sp, // Scaled up slightly
+                      fontSize: 20.sp,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
                     ),
@@ -54,10 +54,15 @@ class MenuScreen extends StatelessWidget {
               title: "Profile",
               onTap: () => context.push('/profile'),
             ),
+
+            // --- UPDATED CHANGE PASSWORD BUTTON ---
             _buildMenuItem(
               icon: Icons.vpn_key_outlined,
               title: "Change Password",
-              onTap: () => print("Change Password Tapped"),
+              onTap: () {
+                String userEmail = "villegasgianrussell@gmail.com";
+                context.push('/change-password-verify', extra: userEmail);
+              },
             ),
 
             // Pushes the Sign Out button to the very bottom
@@ -70,7 +75,7 @@ class MenuScreen extends StatelessWidget {
               onTap: () => print("Sign Out Tapped"),
               showChevron: false, // No arrow for sign out
             ),
-            SizedBox(height: 20.h), // Bottom padding
+            SizedBox(height: 20.h),
           ],
         ),
       ),

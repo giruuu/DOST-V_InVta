@@ -14,6 +14,10 @@ import '../../features/auth/screens/signup_page.dart';
 import '../../features/auth/screens/step2_signup.dart';
 import '../../features/auth/screens/step3_code_sent.dart';
 
+// --- NEW IMPORTS FOR CHANGE PASSWORD FLOW ---
+import '../../features/menu/screens/change_password_verify.dart';
+import '../../features/menu/screens/change_password_new.dart';
+import '../../features/menu/screens/change_password_success.dart';
 
 // Navigator Keys for maintaining state across tabs
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -26,7 +30,6 @@ final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/login',
 
-  // TODO: Add redirect logic later for Laravel Sanctum/Token checks
 
   routes: [
     StatefulShellRoute.indexedStack(
@@ -51,7 +54,7 @@ final appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/events',
-              builder: (context, state) => const EventsScreen(), // <--- Update this line
+              builder: (context, state) => const EventsScreen(),
             ),
           ],
         ),
@@ -62,7 +65,7 @@ final appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/announcements',
-                builder: (context, state) => const AnnouncementsScreen(),
+              builder: (context, state) => const AnnouncementsScreen(),
             ),
           ],
         ),
@@ -73,24 +76,26 @@ final appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/menu',
-              builder: (context, state) => const MenuScreen(), // Updated!
+              builder: (context, state) => const MenuScreen(),
             ),
           ],
         ),
       ],
     ),
 
+    // ==========================================================
     // FULL-SCREEN ROUTES (No Bottom Nav Bar here)
+    // ==========================================================
+
     // LOGIN SCREEN
     GoRoute(
       path: '/login',
-      name: 'login', // Adding a name is good practice for navigation
+      name: 'login',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const LoginPage(),
     ),
 
-    //SignUP
-
+    // SIGN UP - STEP 1
     GoRoute(
       path: '/signup',
       name: 'signup',
@@ -105,23 +110,57 @@ final appRouter = GoRouter(
       builder: (context, state) => const ProfileScreen(),
     ),
 
-    //STEP2_signup
-
+    // SIGN UP - STEP 2
     GoRoute(
       path: '/signup-password',
       name: 'signup-password',
-      builder: (context, state) => const SignUpPasswordScreen(),
+      parentNavigatorKey: _rootNavigatorKey, // Ensures it covers the whole screen
+      builder: (context, state) {
+        // Safely extract the data passed via 'extra'
+        final userData = state.extra as Map<String, dynamic>? ?? {};
+        return SignUpPasswordScreen(userData: userData);
+      },
     ),
 
-    //STEP 3_SignUp
-
+    // SIGN UP - STEP 3
     GoRoute(
       path: '/signup-otc',
       name: 'signup-otc',
-      builder: (context, state) => const SignUpOTCPage(),
+      parentNavigatorKey: _rootNavigatorKey, // Ensures it covers the whole screen
+      builder: (context, state) {
+        // Extract the combined data
+        final userData = state.extra as Map<String, dynamic>? ?? {};
+        return SignUpOTCPage(userData: userData);
+      },
     ),
 
-    // NEW DETAILS ROUTE (WITH SLIDE-UP ANIMATION)
+    // ----------------------------------------------------------
+    // CHANGE PASSWORD FLOW
+    // ----------------------------------------------------------
+    GoRoute(
+      path: '/change-password-verify',
+      name: 'change-password-verify',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final email = state.extra as String? ?? 'your_email@gmail.com';
+        return ChangePasswordVerifyScreen(email: email);
+      },
+    ),
+    GoRoute(
+      path: '/change-password-new',
+      name: 'change-password-new',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ChangePasswordNewScreen(),
+    ),
+    GoRoute(
+      path: '/change-password-success',
+      name: 'change-password-success',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ChangePasswordSuccessScreen(),
+    ),
+    // ----------------------------------------------------------
+
+    // NEW DETAILS ROUTE
     GoRoute(
       path: '/event-details',
       parentNavigatorKey: _rootNavigatorKey,
@@ -130,10 +169,8 @@ final appRouter = GoRouter(
           key: state.pageKey,
           child: const EventDetailsScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            // Start from the bottom (Offset Y: 1.0) and slide to the center (Offset Y: 0.0)
             const begin = Offset(0.0, 1.0);
             const end = Offset.zero;
-            // A smooth curve makes it feel natural, not robotic
             const curve = Curves.easeOutCubic;
 
             var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
@@ -149,15 +186,14 @@ final appRouter = GoRouter(
 
     // SUB-EVENT / EXHIBIT DETAILS ROUTE
     GoRoute(
-      path: '/sub-event-details/:type', // The ':type' variable grabs the word from the URL
+      path: '/sub-event-details/:type',
       parentNavigatorKey: _rootNavigatorKey,
       pageBuilder: (context, state) {
-        // Check the URL parameter to see if it's an exhibit
         final bool isExhibit = state.pathParameters['type'] == 'exhibit';
 
         return CustomTransitionPage(
           key: state.pageKey,
-          child: SubEventDetailsScreen(isExhibit: isExhibit), // Pass it to the screen
+          child: SubEventDetailsScreen(isExhibit: isExhibit),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             const begin = Offset(0.0, 1.0);
             const end = Offset.zero;
@@ -168,7 +204,5 @@ final appRouter = GoRouter(
         );
       },
     ),
-
-    // The QR Scanner will go here later with parentNavigatorKey: _rootNavigatorKey
   ],
 );
